@@ -210,6 +210,7 @@ dependencies = [
 name = "hello"
 version = "0.1.0"
 dependencies = [
+ "http 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "lambda_http 0.2.0-beta.1 (git+https://github.com/awslabs/aws-lambda-rust-runtime/)",
  "serde_json 1.0.56 (registry+https://github.com/rust-lang/crates.io-index)",
  "tokio 0.2.21 (registry+https://github.com/rust-lang/crates.io-index)",
