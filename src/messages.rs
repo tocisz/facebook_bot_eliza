@@ -1,6 +1,6 @@
-use serde::{Deserialize, Serialize};
-use crate::messages::MessagingType::RESPONSE;
 use crate::config::CONFIG;
+use crate::messages::MessagingType::RESPONSE;
+use serde::{Deserialize, Serialize};
 
 static ENDPOINT: &str = "https://graph.facebook.com/v8.0/me/messages?access_token=";
 
@@ -17,14 +17,16 @@ static ENDPOINT: &str = "https://graph.facebook.com/v8.0/me/messages?access_toke
 #[derive(Deserialize, Serialize)]
 #[allow(non_camel_case_types)]
 enum MessagingType {
-    RESPONSE, UPDATE, MESSAGE_TAG
+    RESPONSE,
+    UPDATE,
+    MESSAGE_TAG,
 }
 
 #[derive(Deserialize, Serialize)]
 struct SendMessage {
     messaging_type: MessagingType,
     recipient: UserId,
-    message: MessageDetails
+    message: MessageDetails,
 }
 
 impl SendMessage {
@@ -32,11 +34,9 @@ impl SendMessage {
         SendMessage {
             messaging_type: RESPONSE,
             recipient: UserId {
-                id: String::from(user)
+                id: String::from(user),
             },
-            message: MessageDetails {
-                text: message
-            }
+            message: MessageDetails { text: message },
         }
     }
 }
@@ -51,7 +51,7 @@ pub struct Entries {
 pub struct Entry {
     pub id: String,
     pub time: u64,
-    pub messaging: Vec<Message>
+    pub messaging: Vec<Message>,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
@@ -59,17 +59,17 @@ pub struct Message {
     pub sender: UserId,
     pub recipient: UserId,
     pub timestamp: u64,
-    pub message: MessageDetails
+    pub message: MessageDetails,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct UserId {
-    pub id: String
+    pub id: String,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct MessageDetails {
-    pub text: String
+    pub text: String,
 }
 
 pub async fn send_response(user: &str, message: &str) {
@@ -77,7 +77,8 @@ pub async fn send_response(user: &str, message: &str) {
     println!("[<{}] {}", user, &response);
     let url = format!("{}{}", ENDPOINT, &CONFIG.access_token);
     let client = reqwest::Client::new();
-    let res = client.post(&url)
+    let res = client
+        .post(&url)
         .json(&SendMessage::response(user, response))
         .send()
         .await;

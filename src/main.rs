@@ -4,12 +4,12 @@ mod messages;
 #[macro_use]
 extern crate lazy_static; // used by mod config
 
-use messages::Entries;
 use config::CONFIG;
+use messages::Entries;
 
-use lambda_http::{handler, lambda, Context, IntoResponse, Request, Response, Body, RequestExt}; // RequestExt,
-use lambda_http::http::StatusCode;
 use http::Method;
+use lambda_http::http::StatusCode;
+use lambda_http::{handler, lambda, Body, Context, IntoResponse, Request, RequestExt, Response}; // RequestExt,
 use std::ops::Deref;
 
 type Error = Box<dyn std::error::Error + Sync + Send + 'static>;
@@ -26,7 +26,7 @@ async fn route(req: Request, _: Context) -> Result<impl IntoResponse, Error> {
     match req.uri().path() {
         "/" => handle_index(req).await,
         "/webhook" => handle_webhook(req).await,
-        _ => handle_404(req).await
+        _ => handle_404(req).await,
     }
 }
 
@@ -39,14 +39,14 @@ async fn handle_webhook(req: Request) -> Result<Response<Body>, Error> {
     match *req.method() {
         Method::GET => handle_webhook_get(req).await,
         Method::POST => handle_webhook_post(req).await,
-        _ => handle_404(req).await
+        _ => handle_404(req).await,
     }
 }
 
 async fn handle_webhook_get(req: Request) -> Result<Response<Body>, Error> {
     let params = req.query_string_parameters();
     println!("Request params:");
-    for (k,v) in params.iter() {
+    for (k, v) in params.iter() {
         println!(" * {}={}", k, v);
     }
     let verify_token = params.get("hub.verify_token");
@@ -59,7 +59,7 @@ async fn handle_webhook_get(req: Request) -> Result<Response<Body>, Error> {
 
         if mode == "subscribe" && verify_token == CONFIG.verify_token {
             println!("Returning challenge.");
-            return Ok(challenge.into_response())
+            return Ok(challenge.into_response());
         }
     }
     println!("Verification failed!");
@@ -71,7 +71,7 @@ async fn handle_webhook_get(req: Request) -> Result<Response<Body>, Error> {
 async fn handle_webhook_post(req: Request) -> Result<Response<Body>, Error> {
     let params = req.query_string_parameters();
     println!("Request params:");
-    for (k,v) in params.iter() {
+    for (k, v) in params.iter() {
         println!(" * {}={}", k, v);
     }
     let body_array = req.body().deref();
@@ -88,10 +88,10 @@ async fn handle_webhook_post(req: Request) -> Result<Response<Body>, Error> {
                 }
             }
             println!("{:?}", entries);
-        },
+        }
         Err(e) => {
             println!("ERROR: {:?}", e);
-        },
+        }
     }
     Ok(().into_response())
 }
