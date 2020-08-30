@@ -74,7 +74,7 @@ pub struct MessageDetails {
 
 pub async fn send_response(user: &str, message: &str) {
     let response = format!("You said: {}", message);
-    println!("[<{}] {}", user, &response);
+    info!("[{}] {}", user, &response);
     let url = format!("{}{}", ENDPOINT, &CONFIG.access_token);
     let client = reqwest::Client::new();
     let res = client
@@ -83,7 +83,7 @@ pub async fn send_response(user: &str, message: &str) {
         .send()
         .await;
     match res {
-        Ok(resp) => println!("Got response {:?}", resp),
-        Err(err) => println!("Got error {:?}", err),
+        Ok(resp) => debug!("Got response {:?}", resp),
+        Err(err) => error!("Got error {:?}", err),
     }
 }

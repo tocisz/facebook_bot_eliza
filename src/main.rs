@@ -3,26 +3,31 @@ mod messages;
 
 #[macro_use]
 extern crate lazy_static; // used by mod config
+#[macro_use]
+extern crate log;
+use log::Level;
 
 use config::CONFIG;
 use messages::Entries;
 
+use env_logger;
 use http::Method;
 use lambda_http::http::StatusCode;
-use lambda_http::{handler, lambda, Body, Context, IntoResponse, Request, RequestExt, Response}; // RequestExt,
+use lambda_http::{handler, lambda, Body, Context, IntoResponse, Request, RequestExt, Response};
 use std::ops::Deref;
 
 type Error = Box<dyn std::error::Error + Sync + Send + 'static>;
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
-    println!("Config is {}", *CONFIG);
+    env_logger::init();
+    info!("Config is {}", *CONFIG);
     lambda::run(handler(route)).await?;
     Ok(())
 }
 
 async fn route(req: Request, _: Context) -> Result<impl IntoResponse, Error> {
-    println!("Request is {} {}", req.method(), req.uri().path());
+    debug!("Request is {} {}", req.method(), req.uri().path());
     match req.uri().path() {
         "/" => handle_index(req).await,
         "/webhook" => handle_webhook(req).await,
@@ -45,9 +50,11 @@ async fn handle_webhook(req: Request) -> Result<Response<Body>, Error> {
 
 async fn handle_webhook_get(req: Request) -> Result<Response<Body>, Error> {
     let params = req.query_string_parameters();
-    println!("Request params:");
-    for (k, v) in params.iter() {
-        println!(" * {}={}", k, v);
+    if log_enabled!(Level::Debug) {
+        debug!("Request params:");
+        for (k, v) in params.iter() {
+            debug!(" * {}={}", k, v);
+        }
     }
     let verify_token = params.get("hub.verify_token");
     let challenge = params.get("hub.challenge");
@@ -58,11 +65,11 @@ async fn handle_webhook_get(req: Request) -> Result<Response<Body>, Error> {
         let mode = mode.unwrap();
 
         if mode == "subscribe" && verify_token == CONFIG.verify_token {
-            println!("Returning challenge.");
+            info!("Returning challenge.");
             return Ok(challenge.into_response());
         }
     }
-    println!("Verification failed!");
+    error!("Verification failed!");
     let mut resp = "Failed to verify token!".into_response();
     *resp.status_mut() = StatusCode::FORBIDDEN;
     Ok(resp)
@@ -70,13 +77,15 @@ async fn handle_webhook_get(req: Request) -> Result<Response<Body>, Error> {
 
 async fn handle_webhook_post(req: Request) -> Result<Response<Body>, Error> {
     let params = req.query_string_parameters();
-    println!("Request params:");
-    for (k, v) in params.iter() {
-        println!(" * {}={}", k, v);
+    if log_enabled!(Level::Debug) {
+        debug!("Request params:");
+        for (k, v) in params.iter() {
+            debug!(" * {}={}", k, v);
+        }
     }
     let body_array = req.body().deref();
     let body_string = String::from_utf8_lossy(body_array);
-    println!("Body: {}", body_string);
+    debug!("Body: {}", body_string);
     let entries: Result<Entries, serde_json::error::Error> = serde_json::from_str(&body_string);
     match entries {
         Ok(entries) => {
@@ -87,10 +96,10 @@ async fn handle_webhook_post(req: Request) -> Result<Response<Body>, Error> {
                     messages::send_response(sender, message).await;
                 }
             }
-            println!("{:?}", entries);
+            info!("Got {:?}", entries);
         }
         Err(e) => {
-            println!("ERROR: {:?}", e);
+            error!("Deserialization failed {:?}", e);
         }
     }
     Ok(().into_response())
