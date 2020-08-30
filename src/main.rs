@@ -10,7 +10,6 @@ use log::Level;
 use config::CONFIG;
 use messages::Entries;
 
-use env_logger;
 use http::Method;
 use lambda_http::http::StatusCode;
 use lambda_http::{handler, lambda, Body, Context, IntoResponse, Request, RequestExt, Response};
@@ -89,6 +88,7 @@ async fn handle_webhook_post(req: Request) -> Result<Response<Body>, Error> {
     let entries: Result<Entries, serde_json::error::Error> = serde_json::from_str(&body_string);
     match entries {
         Ok(entries) => {
+            info!("Got {:?}", entries);
             for e in &entries.entry {
                 for ems in &e.messaging {
                     let sender = ems.sender.id.as_str();
@@ -96,7 +96,6 @@ async fn handle_webhook_post(req: Request) -> Result<Response<Body>, Error> {
                     messages::send_response(sender, message).await;
                 }
             }
-            info!("Got {:?}", entries);
         }
         Err(e) => {
             error!("Deserialization failed {:?}", e);
