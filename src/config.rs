@@ -12,8 +12,8 @@ lazy_static! {
 
 impl Config {
     pub fn new() -> Config {
-        let verify_token = env::var("VERIFY_TOKEN").unwrap_or_else(|| "NO_TOKEN".to_string());
-        let access_token = env::var("ACCESS_TOKEN").unwrap_or_else(|| "".to_string());
+        let verify_token = env::var("VERIFY_TOKEN").unwrap_or_else(|_| "NO_TOKEN".to_string());
+        let access_token = env::var("ACCESS_TOKEN").unwrap_or_else(|_| "".to_string());
 
         Config {
             verify_token,
