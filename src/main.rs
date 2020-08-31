@@ -1,4 +1,5 @@
 mod config;
+mod eliza_bot;
 mod messages;
 
 #[macro_use]

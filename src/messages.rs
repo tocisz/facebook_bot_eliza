@@ -2,6 +2,13 @@ use crate::config::CONFIG;
 use crate::messages::MessagingType::RESPONSE;
 use serde::{Deserialize, Serialize};
 
+use crate::eliza_bot::ElizaBot;
+use std::cell::RefCell;
+
+thread_local!(
+    static ELIZA: RefCell<ElizaBot> = RefCell::new(ElizaBot::new().unwrap());
+);
+
 static ENDPOINT: &str = "https://graph.facebook.com/v8.0/me/messages?access_token=";
 
 // {
@@ -73,7 +80,7 @@ pub struct MessageDetails {
 }
 
 pub async fn send_response(user: &str, message: &str) {
-    let response = format!("You said: {}", message);
+    let response = ELIZA.with(|eliza| eliza.borrow_mut().respond(message));
     info!("[{}] {}", user, &response);
     let url = format!("{}{}", ENDPOINT, &CONFIG.access_token);
     let client = reqwest::Client::new();
