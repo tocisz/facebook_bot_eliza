@@ -16,4 +16,4 @@ lazy_static = "1.4"
 log = "^0.4"
 env_logger = "^0.7"
 
-eliza = { git = "https://github.com/arosspope/eliza-rs", branch = "master" }
+eliza = "2.0"

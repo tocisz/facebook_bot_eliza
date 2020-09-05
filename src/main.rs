@@ -36,8 +36,7 @@ async fn route(req: Request, _: Context) -> Result<impl IntoResponse, Error> {
 }
 
 async fn handle_index(_: Request) -> Result<Response<Body>, Error> {
-    let response = "Welcome! Please use /webhook.".into_response();
-    Ok(response)
+    Ok("Welcome! Please use /webhook.".into_response())
 }
 
 async fn handle_webhook(req: Request) -> Result<Response<Body>, Error> {
