@@ -15,9 +15,9 @@ provider:
   name: aws
   runtime: rust
   memorySize: 128
+  region: eu-west-1
 # you can overwrite defaults here
 #  stage: dev
-#  region: us-east-1
 
 # you can add statements to the Lambda function's IAM Role here
 #  iamRoleStatements:
@@ -46,11 +46,11 @@ plugins:
   - serverless-rust
 
 functions:
-  hello:
+  facebook_eliza:
     # handler value syntax is `{cargo-package-name}.{bin-name}`
     # or `{cargo-package-name}` for short when you are building a
     # default bin for a given package.
-    handler: hello
+    handler: facebook_eliza
     events:
       - http:
           path: '/'
