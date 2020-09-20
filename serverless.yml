@@ -11,6 +11,9 @@
 #
 # Happy Coding!
 service: aws-rust # NOTE: update this with your service name
+custom:
+  rust:
+    volumePath: serverless-workspace
 provider:
   name: aws
   runtime: rust
