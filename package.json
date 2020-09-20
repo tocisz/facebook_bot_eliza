@@ -1,6 +1,6 @@
 {
   "devDependencies": {
-    "serverless": "tocisz/serverless-rust#master",
-    "serverless-rust": "^0.3.8"
+    "serverless": "^1.74.1",
+    "serverless-rust": "tocisz/serverless-rust#master"
   }
 }
